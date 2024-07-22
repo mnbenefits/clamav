@@ -1,21 +1,20 @@
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.access.redhat.com/ubi9/ubi
+ARG VERSION=1.3.1
 
 LABEL name="ubi8-clamav" \
       vendor="Red Hat" \
-      version="0.1.0" \
+      version="${VERSION}" \
       release="1" \
-      summary="UBI 8 ClamAV" \
-      description="ClamAV for UBI 8" \
+      summary="UBI 9 ClamAV" \
+      description="ClamAV for UBI 9" \
       maintainer="EPIC"
 
-RUN yum -y update \
-  && yum -y install yum-utils \
-  && def install -y epel-release
-RUN yum install -y clamav-server clamav-data clamav-update clamav-filesystem clamav clamav-scanner-systemd clamav-devel clamav-lib clamav-server-systemd
-RUN yum install -y wget
+RUN yum -y update
+RUN yum -y install https://www.clamav.net/downloads/production/clamav-${VERSION}.linux.x86_64.rpm
+RUN yum -y install nc wget
 
-COPY config/clamd.conf /etc/clamd.conf
-COPY config/freshclam.conf /etc/freshclam.conf
+COPY config/clamd.conf /usr/local/etc/clamd.conf
+COPY config/freshclam.conf /usr/local/etc/freshclam.conf
 
 RUN mkdir /opt/app-root
 RUN mkdir /opt/app-root/src
@@ -35,4 +34,4 @@ USER 1001
 
 EXPOSE 3310
 
-CMD freshclam && clamd -c /etc/clamd.conf
+CMD freshclam && clamd 
